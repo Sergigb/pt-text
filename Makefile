@@ -41,18 +41,18 @@ TEXT_OBJS := $(foreach source, $(TEXT_SRCS), $(OBJPATH)/$(source:.cpp=.o))
 DEPENDS_TEXT = ${TEXT_OBJS:.o=.d}
 
 # demo
-MAIN_APP = main.cpp
-MAIN_OBJ = $(EXECPATH)/main.o
-MAIN_OBJ := $(MAIN_OBJ) $(TEXT_OBJS)
+MAIN_APP_SRCS := $(wildcard ./*.cpp)
+MAIN_OBJS := $(foreach source, $(MAIN_APP_SRCS), $(OBJPATH)/$(source:.cpp=.o))
+MAIN_OBJS := $(MAIN_OBJS) $(TEXT_OBJS)
 
-DEPENDS = $(DEPENDS_TEXT) ${TEXT_OBJS:.o=.d} ${MAIN_OBJ:.o=.d}
+DEPENDS = $(DEPENDS_TEXT) ${MAIN_OBJS:.o=.d}
 
 .PHONY: clean
 
 all: main
 
-main: $(MAIN_OBJ)
-	$(CXX) $(CXXFLAGS) $(MAIN_OBJ) -o $(EXECPATH)/main $(LDLIBS)
+main: $(MAIN_OBJS)
+	$(CXX) $(CXXFLAGS) $(MAIN_OBJS) -o $(EXECPATH)/main $(LDLIBS)
 
 $(OBJPATH)/%.o: %.cpp
 	@mkdir -p $(@D)

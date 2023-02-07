@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #ifdef SAVE_STB
     #ifdef __GNUC__ // make gcc shut up about missing field initializers on stb
         #pragma GCC diagnostic push
@@ -30,6 +32,13 @@
 
 #include "src/FontAtlas.h"
 #include "src/common.h"
+
+// example headers
+#include "window.h"
+#include "graphics.h"
+
+
+GLFWwindow* window;
 
 
 int main(int argc, char* argv[]){
@@ -57,12 +66,37 @@ int main(int argc, char* argv[]){
         return EXIT_FAILURE;
     }
 
+    // init atlas
     uint failed_chars = 0;
     failed_chars += atlas.loadCharacterRange(32, 255); // ascii
     failed_chars += atlas.loadCharacterRange(913, 1023); // greek and coptic
-    std::cout << "Failed to load " << failed_chars << " characters" << std::endl;
+    std::cerr << "Failed to load " << failed_chars << " characters" << std::endl;
+    if(atlas.createAtlas(true))
+        std::cerr << "Failed to create the complete atlas (out of space?)" << std::endl;
 
-    atlas.createAtlas(true);
+    // init GLFW window
+    window = init_window();
+    if(window == nullptr){
+        std::cerr << "Failed to open window" << std::endl;
+        return EXIT_FAILURE;
+    }
+    // init GL/GLEW
+    if(init_gl(window) == EXIT_FAILURE){
+        std::cerr << "Failed to init GLEW" << std::endl;
+        return EXIT_FAILURE;
+    }
 
+    // main loop
+    while(!glfwWindowShouldClose(window)){
+        glfwPollEvents();
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        check_gl_errors(true);
+        glfwSwapBuffers(window);
+    }
+
+    glfwTerminate();
     return EXIT_SUCCESS;
 }
