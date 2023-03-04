@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
     failed_chars += atlas.loadCharacterRange(32, 255); // ascii
     failed_chars += atlas.loadCharacterRange(913, 1023); // greek and coptic
     std::cerr << "Failed to load " << failed_chars << " characters" << std::endl;
-    if(atlas.createAtlas(true))
+    if(atlas.createAtlas(false))
         std::cerr << "Failed to create the complete atlas (out of space?)" << std::endl;
 
     // init GLFW window
@@ -85,6 +85,10 @@ int main(int argc, char* argv[]){
         std::cerr << "Failed to init GLEW" << std::endl;
         return EXIT_FAILURE;
     }
+
+    // load shader
+    GLuint shader = get_program();
+    std:: cout << shader << std::endl;
 
     // main loop
     while(!glfwWindowShouldClose(window)){
