@@ -87,8 +87,11 @@ int main(int argc, char* argv[]){
     }
 
     // load shader
-    GLuint shader = get_program();
-    std:: cout << shader << std::endl;
+    GLuint shader;
+    if(get_program(shader) == EXIT_FAILURE){
+        std::cerr << "Failed to create text shaders" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     // main loop
     while(!glfwWindowShouldClose(window)){

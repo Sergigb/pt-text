@@ -114,12 +114,15 @@ int create_program(GLuint vert, GLuint frag, GLuint &program_index){
 }
 
 
-GLuint get_program(){
-    GLuint vert, frag, program;
-    create_shader(vert_shader, vert, GL_VERTEX_SHADER);
-    create_shader(frag_shader, frag, GL_FRAGMENT_SHADER);
-    create_program(vert, frag, program);
-    return program;
+int get_program(GLuint& program){
+    GLuint vert, frag;
+    if(create_shader(vert_shader, vert, GL_VERTEX_SHADER) == EXIT_FAILURE)
+        return EXIT_FAILURE;
+    if(create_shader(frag_shader, frag, GL_FRAGMENT_SHADER) == EXIT_FAILURE)
+        return EXIT_FAILURE;
+    if(create_program(vert, frag, program) == EXIT_FAILURE)
+        return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 

@@ -32,7 +32,7 @@ int create_shader(const GLchar* shader_str, GLuint &shader, GLenum type);
 int create_program(GLuint vert, GLuint frag, GLuint &program_index);
 
 /* Returns the shader program that renders the text */
-GLuint get_program();
+int get_program(GLuint& program);
 
 /* Initializes the GL/GLEW. Returns EXIT_FAILURE on error */
 int init_gl(GLFWwindow* window);
