@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 #include <GL/glew.h>
 
@@ -32,7 +33,8 @@ const GLchar frag_shader[] = "#version 410\n"
 
                              "void main(){\n"
                                  "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(texture_sampler, st).r);\n"
-                                 "frag_colour = vec4(text_color, 1.0) * sampled;\n"
+                                 //"frag_colour = vec4(text_color, 1.0) * sampled;\n"
+                                 "frag_colour = vec4(1.0, 1.0, 1.0, 1.0);\n"
                              "}\n";
 
 
@@ -149,3 +151,27 @@ int init_gl(GLFWwindow* window){
 
     return EXIT_SUCCESS;
 }
+
+
+float mat4_identity[] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                         0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+void update_ortho_proj(float right, float left, float top,
+                       float bottom, float far , float near, GLuint shader){
+    float mat[16];
+    std::memcpy(mat, mat4_identity, sizeof(mat4_identity));
+
+    mat[0] = 2.0f / (right - left);
+    mat[5] = 2.0f / (top - bottom);
+    mat[10] = -2.0f / (far - near);
+    mat[12] = -(right + left) / (right - left);
+    mat[13] = -(top + bottom) / (top - bottom);
+    mat[14] = -(far + near) / (far - near);
+
+    GLint projection_location = glGetUniformLocation(shader, "projection");
+    glUseProgram(shader);
+    glUniformMatrix4fv(projection_location, 1, GL_FALSE, mat);
+
+    check_gl_errors(true);
+}
+

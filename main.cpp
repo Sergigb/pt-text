@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <cassert>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -30,15 +31,45 @@
     #include <stb_image_write.h>
 #endif
 
+// text shaders
 #include "src/FontAtlas.h"
 #include "src/common.h"
+#include "src/Text2D.h"
 
 // example headers
 #include "window.h"
 #include "graphics.h"
 
 
-GLFWwindow* window;
+GLFWwindow* window = nullptr;
+GLuint text_shader;
+
+Text2D* my_text = nullptr;  // just used by the framebuffer callback
+
+
+void on_fb_resize_callback(GLFWwindow* window, int width, int height){
+    UNUSED(window);
+    #ifdef DEBUG
+    assert(my_text);
+    #endif //DEBUG
+
+    update_ortho_proj(width, 0.0f, height, 0.0f, 1.0f, -1.0f, text_shader);
+    update_ortho_proj(width, 0.0f, width,  0.0f, 1.0f, -1.0f, text_shader);
+    my_text->onFramebufferSizeUpdate(width, height);
+}
+
+
+void on_kb_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
+    UNUSED(scancode);
+    UNUSED(mods);
+    #ifdef DEBUG
+    assert(window);
+    #endif //DEBUG
+
+    if(key == GLFW_KEY_UNKNOWN) return;
+    if(key == GLFW_KEY_ESCAPE && action)
+        glfwSetWindowShouldClose(window, true);
+}
 
 
 int main(int argc, char* argv[]){
@@ -59,7 +90,23 @@ int main(int argc, char* argv[]){
     else
         path = argv[1];
 
-    FontAtlas atlas(512); // create the atlas
+    // init GLFW window
+    window = init_window();
+    if(window == nullptr){
+        std::cerr << "Failed to open window" << std::endl;
+        return EXIT_FAILURE;
+    }
+    glfwSetFramebufferSizeCallback(window, on_fb_resize_callback);
+    glfwSetKeyCallback(window, on_kb_callback);
+
+    // init GL/GLEW
+    if(init_gl(window) == EXIT_FAILURE){
+        std::cerr << "Failed to init GLEW" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    // create the atlas
+    FontAtlas atlas(512); 
 
     if(atlas.loadFont(path, 32)){
         std::cerr << "Failed to load font" << std::endl;
@@ -74,31 +121,33 @@ int main(int argc, char* argv[]){
     if(atlas.createAtlas(false))
         std::cerr << "Failed to create the complete atlas (out of space?)" << std::endl;
 
-    // init GLFW window
-    window = init_window();
-    if(window == nullptr){
-        std::cerr << "Failed to open window" << std::endl;
-        return EXIT_FAILURE;
-    }
-    // init GL/GLEW
-    if(init_gl(window) == EXIT_FAILURE){
-        std::cerr << "Failed to init GLEW" << std::endl;
-        return EXIT_FAILURE;
-    }
-
     // load shader
-    GLuint shader;
-    if(get_program(shader) == EXIT_FAILURE){
+    if(get_program(text_shader) == EXIT_FAILURE){
         std::cerr << "Failed to create text shaders" << std::endl;
         return EXIT_FAILURE;
     }
+
+    // create ortho projection
+    int vp_data[4];
+    glGetIntegerv(GL_VIEWPORT, vp_data);
+    update_ortho_proj(vp_data[2], 0.0f, vp_data[3], 0.0f, 1.0f, -1.0f, text_shader);
+
+    // create the 2D text object
+    float color[] = {1.0f, 1.0f, 1.0f};
+    Text2D text(vp_data[2], vp_data[3], color, &atlas, text_shader);
+    my_text = &text; // set this pointer for the callback
+
+    text.addString(L"Hello World!", 50., 50., 1, STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT);
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     // main loop
     while(!glfwWindowShouldClose(window)){
         glfwPollEvents();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        text.render();
 
         check_gl_errors(true);
         glfwSwapBuffers(window);

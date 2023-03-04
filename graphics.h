@@ -37,4 +37,8 @@ int get_program(GLuint& program);
 /* Initializes the GL/GLEW. Returns EXIT_FAILURE on error */
 int init_gl(GLFWwindow* window);
 
+/* Updates the shader's projection uniform with an orthographic projection */
+void update_ortho_proj(float right, float left, float top,
+                       float bottom, float far , float near, GLuint shader);
+
 #endif
