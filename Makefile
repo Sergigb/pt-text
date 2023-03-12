@@ -41,7 +41,7 @@ TEXT_OBJS := $(foreach source, $(TEXT_SRCS), $(OBJPATH)/$(source:.cpp=.o))
 DEPENDS_TEXT = ${TEXT_OBJS:.o=.d}
 
 # demo
-MAIN_APP_SRCS := $(wildcard ./*.cpp)
+MAIN_APP_SRCS := $(wildcard example/*.cpp)
 MAIN_OBJS := $(foreach source, $(MAIN_APP_SRCS), $(OBJPATH)/$(source:.cpp=.o))
 MAIN_OBJS := $(MAIN_OBJS) $(TEXT_OBJS)
 
