@@ -141,7 +141,7 @@ int main(int argc, char* argv[]){
 
     text.addString(L"Hello World! (Left-aligned)", 50., 50., 1, STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT);
     text.addString(L"Relative text (0.5, 0.5)", 0.5, 0.5, 1, STRING_ALIGN_CENTER_XY);
-    text.addString(L"Hello World! (Left-aligned)", 50., 50., 1, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
+    text.addString(L"Hello World! (Right-aligned)", 50., 50., 1, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
     text.addString(L"big as shit text", 50., 250., 2, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
     text.addString(L"small text", 50., 230., 0.25, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
 
