@@ -230,7 +230,7 @@ void Text2D::render(){
     glUniform3f(m_color_location, m_color[0], m_color[1], m_color[2]);
     glUniform2f(m_disp_location, m_disp[0], m_disp[1]);
 
-    //m_font_atlas->bindTexture();
+    m_font_atlas->bindTexture();
     glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_SHORT, NULL);
 }
 

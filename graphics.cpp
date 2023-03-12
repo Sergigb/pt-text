@@ -32,8 +32,7 @@ const GLchar frag_shader[] = "#version 410\n"
                              "uniform vec3 text_color;\n"
 
                              "void main(){\n"
-                                 "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(texture_sampler, st).r);\n"
-                                 //"frag_colour = vec4(1.0, 1.0, 1.0, 1.0);// * sampled;\n"
+                                 "frag_colour = vec4(text_color, texture(texture_sampler, st).r);\n"
                              "}\n";
 
 

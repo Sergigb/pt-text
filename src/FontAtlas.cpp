@@ -26,6 +26,7 @@
 #ifdef SAVE_STB
     #include <stb_image_write.h>
 #endif
+#include <GL/glew.h>
 
 #include "FontAtlas.h"
 #include "common.h"
@@ -60,6 +61,7 @@ FontAtlas::FontAtlas(uint atlas_size){
 FontAtlas::~FontAtlas(){
     if(m_ft)
         FT_Done_FreeType(m_ft);
+    glDeleteTextures(1, &m_texture_id);
 }
 
 
@@ -202,6 +204,9 @@ bool FontAtlas::createAtlas(bool save_png){ // check error codes
                   << "stb_image_write.h is under include/)" << std::endl;
 
 #endif // SAVE_STB
+
+    createTexture();
+
     return failed;
 }
 
@@ -242,5 +247,23 @@ uint FontAtlas::getAtlasSize() const{
 
 int FontAtlas::getHeight() const{
     return m_font_height;
+}
+
+
+void FontAtlas::createTexture(){
+    glGenTextures(1, &m_texture_id);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texture_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_atlas_size, m_atlas_size, 0, GL_RED, GL_UNSIGNED_BYTE, m_atlas.get());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+}
+
+
+void FontAtlas::bindTexture() const{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texture_id);
 }
 

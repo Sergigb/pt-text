@@ -55,6 +55,10 @@ class FontAtlas{
         std::unique_ptr<unsigned char[]> m_atlas;
         std::unordered_map<int, struct character> m_characters;
         std::vector<struct character> m_characters_vec;
+
+        GLuint m_texture_id;
+
+        void createTexture();
     public:
         FontAtlas();
         FontAtlas(uint atlas_size);
@@ -70,6 +74,7 @@ class FontAtlas{
         uint getAtlasSize() const;
         int getHeight() const;
         const unsigned char* getAtlas() const;
+        void bindTexture() const;
 
         // new function to calculate the width of a string?
 };

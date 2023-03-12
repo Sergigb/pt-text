@@ -44,19 +44,22 @@
 GLFWwindow* window = nullptr;
 GLuint text_shader;
 
-Text2D* my_text = nullptr;  // just used by the framebuffer callback
+Text2D* my_text_1 = nullptr;  // just used by the framebuffer callback
+Text2D* my_text_2 = nullptr;  // just used by the framebuffer callback
 
 
 void on_fb_resize_callback(GLFWwindow* window, int width, int height){
     UNUSED(window);
     #ifdef DEBUG
-    assert(my_text);
+    assert(my_text_1);
+    assert(my_text_2);
     #endif //DEBUG
 
     update_ortho_proj(width, 0.0f, height, 0.0f, 1.0f, -1.0f, text_shader);
     glViewport(0, 0, width, height);
 
-    my_text->onFramebufferSizeUpdate(width, height);
+    my_text_1->onFramebufferSizeUpdate(width, height);
+    my_text_2->onFramebufferSizeUpdate(width, height);
 }
 
 
@@ -115,6 +118,7 @@ int main(int argc, char* argv[]){
     uint failed_chars = 0;
     failed_chars += atlas.loadCharacterRange(32, 255); // ascii
     failed_chars += atlas.loadCharacterRange(913, 1023); // greek and coptic
+    failed_chars += atlas.loadCharacter(128513); // greek and coptic
     std::cerr << "Failed to load " << failed_chars << " characters" << std::endl;
     if(atlas.createAtlas(false))
         std::cerr << "Failed to create the complete atlas (out of space?)" << std::endl;
@@ -133,20 +137,32 @@ int main(int argc, char* argv[]){
     // create the 2D text object
     float color[] = {1.0f, 1.0f, 1.0f};
     Text2D text(vp_data[2], vp_data[3], color, &atlas, text_shader);
-    my_text = &text; // set this pointer for the callback
+    my_text_1 = &text; // set this pointer for the callback
 
-    text.addString(L"Hello World!", 50., 50., 1, STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT);
-    text.addString(L"Relative text!", 0.5, 0.5, 1, STRING_ALIGN_CENTER_XY);
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    text.addString(L"Hello World! (Left-aligned)", 50., 50., 1, STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT);
+    text.addString(L"Relative text (0.5, 0.5)", 0.5, 0.5, 1, STRING_ALIGN_CENTER_XY);
+    text.addString(L"Hello World! (Left-aligned)", 50., 50., 1, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
+    text.addString(L"big as shit text", 50., 250., 2, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
+    text.addString(L"small text", 50., 230., 0.25, STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT);
+
+    float color2[] = {1.0f, 0.0f, 0.0f};
+    Text2D text2(vp_data[2], vp_data[3], color2, &atlas, text_shader);
+    my_text_2 = &text2; // set this pointer for the callback
+
+    text2.addString(L"To have text of different colors we need a separate\n"
+                      "text object. Seems unnecessary, right? I will probably\n"
+                      "implement independent vertex coloring \"soon\" :PP\n\n"
+                      "Oh, it also supports breaklines!", 0.75, 0.75, 0.5, STRING_ALIGN_CENTER_XY);
 
     // main loop
     while(!glfwWindowShouldClose(window)){
         glfwPollEvents();
 
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(.1f, 0.1f, 0.1f, 0.1f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         text.render();
+        text2.render();
 
         check_gl_errors(true);
         glfwSwapBuffers(window);
