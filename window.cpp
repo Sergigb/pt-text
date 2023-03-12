@@ -27,12 +27,6 @@ void glfw_error_callback(int error, const char* description){
 }
 
 
-void on_fb_resize(GLFWwindow *win, int width, int height){
-    UNUSED(win);
-    std::cout << "fb resize to " << width << " " << height << std::endl;
-}
-
-
 GLFWwindow* init_window(){
     GLFWwindow* window;
     glfwSetErrorCallback(glfw_error_callback);
@@ -52,7 +46,6 @@ GLFWwindow* init_window(){
         return nullptr;
     }
 
-    glfwSetFramebufferSizeCallback(window, on_fb_resize);
     glfwMakeContextCurrent(window);
 
     return window;

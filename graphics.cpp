@@ -33,8 +33,7 @@ const GLchar frag_shader[] = "#version 410\n"
 
                              "void main(){\n"
                                  "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(texture_sampler, st).r);\n"
-                                 //"frag_colour = vec4(text_color, 1.0) * sampled;\n"
-                                 "frag_colour = vec4(1.0, 1.0, 1.0, 1.0);\n"
+                                 //"frag_colour = vec4(1.0, 1.0, 1.0, 1.0);// * sampled;\n"
                              "}\n";
 
 
@@ -153,9 +152,10 @@ int init_gl(GLFWwindow* window){
 }
 
 
-float mat4_identity[] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                         0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-
+const float mat4_identity[] = {1.0f, 0.0f, 0.0f, 0.0f, 
+                               0.0f, 1.0f, 0.0f, 0.0f,
+                               0.0f, 0.0f, 1.0f, 0.0f,
+                               0.0f, 0.0f, 0.0f, 1.0f};
 void update_ortho_proj(float right, float left, float top,
                        float bottom, float far , float near, GLuint shader){
     float mat[16];

@@ -31,7 +31,7 @@
     #include <stb_image_write.h>
 #endif
 
-// text shaders
+// text headers
 #include "src/FontAtlas.h"
 #include "src/common.h"
 #include "src/Text2D.h"
@@ -54,7 +54,8 @@ void on_fb_resize_callback(GLFWwindow* window, int width, int height){
     #endif //DEBUG
 
     update_ortho_proj(width, 0.0f, height, 0.0f, 1.0f, -1.0f, text_shader);
-    update_ortho_proj(width, 0.0f, width,  0.0f, 1.0f, -1.0f, text_shader);
+    glViewport(0, 0, width, height);
+
     my_text->onFramebufferSizeUpdate(width, height);
 }
 
@@ -62,9 +63,6 @@ void on_fb_resize_callback(GLFWwindow* window, int width, int height){
 void on_kb_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     UNUSED(scancode);
     UNUSED(mods);
-    #ifdef DEBUG
-    assert(window);
-    #endif //DEBUG
 
     if(key == GLFW_KEY_UNKNOWN) return;
     if(key == GLFW_KEY_ESCAPE && action)
@@ -138,6 +136,7 @@ int main(int argc, char* argv[]){
     my_text = &text; // set this pointer for the callback
 
     text.addString(L"Hello World!", 50., 50., 1, STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT);
+    text.addString(L"Relative text!", 0.5, 0.5, 1, STRING_ALIGN_CENTER_XY);
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     // main loop
