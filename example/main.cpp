@@ -148,7 +148,8 @@ int main(int argc, char* argv[]){
                    STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT, nice_white);
     text.addString(L"small text", 50., 230., 0.25,
                    STRING_DRAW_ABSOLUTE_BL, STRING_ALIGN_RIGHT, nice_white);
-    text.addString(L"We can also have strings of different color within the same object!\n"
+    text.addString(L"We can also have strings of different color within "
+                    "the same object/drawing call!\n"
                     "And breaklines!", 0.5, 0.75, 0.5,
                     STRING_ALIGN_CENTER_XY, red);
 

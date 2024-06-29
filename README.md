@@ -12,7 +12,8 @@ atlas information to create the vertex, index and texture buffers. Under the fol
 
 You can render as many strings as you want with a single drawing call (numerically, we're limited by the number of indices in the index buffer because
 it uses GL_UNSIGNED_SHORT, but switching to GL_INT or  GL_UNSIGNED_INT should increase this limit). Each Text2D instance can hold different strings
-of different sizes and positions. We can't, however, have two strings in the same Text2D instance with different colors, this is still missing.
+of different sizes and positions. We can also have differently colored strings within the same object. We can't have differently colored words in the
+same string, maybe some day I will implement that.
 
 This code will probably not integrate very well with your project, I'd recommend writing your own implementation and use this code as a guide. Or you could
 just use a separate library but where's the fun in that?
