@@ -138,7 +138,7 @@ void Text2D::updateBuffers(){
     std::unique_ptr<GLfloat[]> vertex_buffer;
     std::unique_ptr<GLfloat[]> tex_coords_buffer;
     std::unique_ptr<GLfloat[]> color_buffer;
-    std::unique_ptr<GLushort[]> index_buffer;
+    std::unique_ptr<GLuint[]> index_buffer;
     for(uint i=0; i < m_strings.size(); i++)
         total_num_characters += m_strings.at(i).strlen;
 
@@ -148,7 +148,7 @@ void Text2D::updateBuffers(){
     vertex_buffer.reset(new GLfloat[2 * m_num_vertices]);
     tex_coords_buffer.reset(new GLfloat[2 * m_num_vertices]);
     color_buffer.reset(new GLfloat[3 * m_num_vertices]);
-    index_buffer.reset(new GLushort[6 * total_num_characters]);
+    index_buffer.reset(new GLuint[6 * total_num_characters]);
 
     for(uint i=0; i < m_strings.size(); i++){
         struct string* current_string = &m_strings.at(i);
@@ -226,7 +226,7 @@ void Text2D::updateBuffers(){
     glBufferData(GL_ARRAY_BUFFER, 3 * m_num_vertices * sizeof(GLfloat), color_buffer.get(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_ind);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * total_num_characters * sizeof(GLushort), index_buffer.get(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * total_num_characters * sizeof(GLuint), index_buffer.get(), GL_STATIC_DRAW);
 }
 
 
@@ -241,7 +241,7 @@ void Text2D::render(){
     glUniform2f(m_disp_location, m_disp[0], m_disp[1]);
 
     m_font_atlas->bindTexture();
-    glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_SHORT, NULL);
+    glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, NULL);
 }
 
 
