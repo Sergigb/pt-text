@@ -10,8 +10,7 @@ The characters are rendered as quads with two triangles using indexed geometry. 
 class Atlas creates a texture atlas and holds the information of each one of the characters (width, height, x/y displacement, etc). Text2D uses the
 atlas information to create the vertex, index and texture buffers. Under the folder ```example``` there's and example of how to use these classes.
 
-You can render as many strings as you want with a single drawing call (numerically, we're limited by the number of indices in the index buffer because
-it uses GL_UNSIGNED_SHORT, but switching to GL_INT or  GL_UNSIGNED_INT should increase this limit). Each Text2D instance can hold different strings
+You can render as many strings as you want with a single drawing call. Each Text2D instance can hold different strings
 of different sizes and positions. We can also have differently colored strings within the same object. We can't have differently colored words in the
 same string, maybe some day I will implement that.
 
