@@ -36,9 +36,8 @@ Text2D::Text2D(){
 }
 
 
-Text2D::Text2D(int fb_width, int fb_height, float color[3], const FontAtlas* font, GLuint shader){
+Text2D::Text2D(int fb_width, int fb_height, const FontAtlas* font, GLuint shader){
 #ifdef DEBUG
-    assert(color);
     assert(font);
 #endif // DEBUG
     m_font_atlas = font;
@@ -51,8 +50,6 @@ Text2D::Text2D(int fb_width, int fb_height, float color[3], const FontAtlas* fon
     m_shader = shader;
     m_disp[0] = 0.0f;
     m_disp[1] = 0.0f;
-    std::memcpy(m_color, color, sizeof(float) * 3);
-    //m_color = c;
 //    m_disp = math::vec2(0.0, 0.0);
 
     initgl();
@@ -73,12 +70,14 @@ void Text2D::initgl(){
     glVertexAttribPointer(1, 2,  GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(1);
 
-    glGenBuffers(1, &m_vbo_ind);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_ind);
-    glVertexAttribPointer(2, 3, GL_UNSIGNED_SHORT, GL_FALSE, 0, NULL);
+    glGenBuffers(1, &m_vbo_col);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo_col);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(2);
 
-    m_color_location = glGetUniformLocation(m_shader, "text_color");
+    glGenBuffers(1, &m_vbo_ind);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_ind);
+
     m_disp_location = glGetUniformLocation(m_shader, "disp");
 }
 
@@ -88,6 +87,7 @@ Text2D::~Text2D(){
         glDeleteBuffers(1, &m_vbo_vert);
         glDeleteBuffers(1, &m_vbo_tex);
         glDeleteBuffers(1, &m_vbo_ind);
+        glDeleteBuffers(1, &m_vbo_col);
         glDeleteVertexArrays(1, &m_vao);
     }
 }
@@ -137,6 +137,7 @@ void Text2D::updateBuffers(){
     uint total_num_characters = 0, acc = 0;
     std::unique_ptr<GLfloat[]> vertex_buffer;
     std::unique_ptr<GLfloat[]> tex_coords_buffer;
+    std::unique_ptr<GLfloat[]> color_buffer;
     std::unique_ptr<GLushort[]> index_buffer;
     for(uint i=0; i < m_strings.size(); i++)
         total_num_characters += m_strings.at(i).strlen;
@@ -146,12 +147,13 @@ void Text2D::updateBuffers(){
 
     vertex_buffer.reset(new GLfloat[2 * m_num_vertices]);
     tex_coords_buffer.reset(new GLfloat[2 * m_num_vertices]);
+    color_buffer.reset(new GLfloat[3 * m_num_vertices]);
     index_buffer.reset(new GLushort[6 * total_num_characters]);
 
     for(uint i=0; i < m_strings.size(); i++){
         struct string* current_string = &m_strings.at(i);
         float pen_x = current_string->posx, pen_y = current_string->posy, w, h, xpos, ypos;
-        uint index, disp;
+        uint index, index_color, disp;
         const character* ch;
         getPenXY(pen_x, pen_y, current_string);
         uint j = 0, k = 0; // k is used to skip the possible line breaks
@@ -189,6 +191,12 @@ void Text2D::updateBuffers(){
             tex_coords_buffer[index + 6] = ch->tex_x_max;
             tex_coords_buffer[index + 7] = ch->tex_y_max;
 
+            index_color = (k + acc) * 12;
+            std::memcpy(&color_buffer[index_color], current_string->color, sizeof(GLfloat) * 3);
+            std::memcpy(&color_buffer[index_color + 3], current_string->color, sizeof(GLfloat) * 3);
+            std::memcpy(&color_buffer[index_color + 6], current_string->color, sizeof(GLfloat) * 3);
+            std::memcpy(&color_buffer[index_color + 9], current_string->color, sizeof(GLfloat) * 3);
+
             disp = (k + acc) * 4;
             index = (k + acc) * 6;
             index_buffer[index] = disp;
@@ -214,6 +222,9 @@ void Text2D::updateBuffers(){
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo_tex);
     glBufferData(GL_ARRAY_BUFFER, 2 * m_num_vertices * sizeof(GLfloat), tex_coords_buffer.get(), GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo_col);
+    glBufferData(GL_ARRAY_BUFFER, 3 * m_num_vertices * sizeof(GLfloat), color_buffer.get(), GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_ind);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * total_num_characters * sizeof(GLushort), index_buffer.get(), GL_STATIC_DRAW);
 }
@@ -227,7 +238,6 @@ void Text2D::render(){
     glUseProgram(m_shader);
     glBindVertexArray(m_vao);
 
-    glUniform3f(m_color_location, m_color[0], m_color[1], m_color[2]);
     glUniform2f(m_disp_location, m_disp[0], m_disp[1]);
 
     m_font_atlas->bindTexture();
@@ -236,8 +246,9 @@ void Text2D::render(){
 
 
 void Text2D::addString(const wchar_t* string, float relative_x, 
-                       float relative_y, float scale, int alignment){
+                       float relative_y, float scale, int alignment, float color[3]){
 #ifdef DEBUG
+    assert(color);
     assert(string);
     assert(relative_x >= 0.0);
     assert(relative_x <= 1.0);
@@ -248,7 +259,7 @@ void Text2D::addString(const wchar_t* string, float relative_x,
 #endif // DEBUG
     uint i;
 
-    addString(string, 0, 0, scale, STRING_DRAW_RELATIVE, alignment);
+    addString(string, 0, 0, scale, STRING_DRAW_RELATIVE, alignment, color);
 
     // dirty dirty...
     i = m_strings.size();
@@ -259,10 +270,12 @@ void Text2D::addString(const wchar_t* string, float relative_x,
 
 
 void Text2D::addString(const wchar_t* text, uint x, uint y, 
-                       float scale, int placement, int alignment){
+                       float scale, int placement, int alignment, float color[3]){
 #ifdef DEBUG
+    assert(color);
     assert(text);
-
+    assert(alignment > 0);
+    assert(alignment < 6);
 #endif
     const character* ch;
     uint i = m_strings.size(), j = 0, w = 0;
@@ -277,6 +290,7 @@ void Text2D::addString(const wchar_t* text, uint x, uint y,
     str.alignment = alignment;
     str.width = 0;
     str.height = getFontHeigth() * scale;
+    std::memcpy(str.color, color, sizeof(float) * 3);
     wstrcpy(str.textbuffer, text, STRING_MAX_LEN);
 
     str.strlen = 0;

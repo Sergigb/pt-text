@@ -43,14 +43,14 @@ class FontAtlas;
 
 class Text2D{
     private:
-        GLuint m_vao, m_vbo_vert, m_vbo_tex, m_vbo_ind;
-        GLuint m_color_location, m_disp_location;
+        GLuint m_vao, m_vbo_vert, m_vbo_tex, m_vbo_col, m_vbo_ind;
+        GLuint m_disp_location;
         GLuint m_num_vertices, m_num_indices;
         std::vector<struct string> m_strings;
         bool m_update_buffer, m_init;
         int m_fb_width, m_fb_height;
         GLuint m_shader;
-        float m_disp[2], m_color[3];
+        float m_disp[2];
 
         const FontAtlas* m_font_atlas;
 
@@ -59,11 +59,11 @@ class Text2D{
         void getPenXY(float& pen_x, float& pen_y, struct string* string_);
     public:
         Text2D();
-        Text2D(int fb_width, int fb_height, float color[3], const FontAtlas* font, GLuint shader);
+        Text2D(int fb_width, int fb_height, const FontAtlas* font, GLuint shader);
         ~Text2D();
 
-        void addString(const wchar_t* string, uint x, uint y, float scale, int placement, int alignment);
-        void addString(const wchar_t* string, float relative_x, float relative_y, float scale, int alignment);
+        void addString(const wchar_t* string, uint x, uint y, float scale, int placement, int alignment, float color[3]);
+        void addString(const wchar_t* string, float relative_x, float relative_y, float scale, int alignment, float color[3]);
         void setDisplacement(float x, float y);
         void clearStrings();
 
@@ -85,6 +85,7 @@ struct string{
     uint width;
     uint height;
     wchar_t textbuffer[STRING_MAX_LEN];
+    float color[3];
 };
 
 
