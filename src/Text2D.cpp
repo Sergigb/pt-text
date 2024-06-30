@@ -72,7 +72,7 @@ void Text2D::initgl(){
 
     glGenBuffers(1, &m_vbo_col);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo_col);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(2);
 
     glGenBuffers(1, &m_vbo_ind);
@@ -147,7 +147,7 @@ void Text2D::updateBuffers(){
 
     vertex_buffer.reset(new GLfloat[2 * m_num_vertices]);
     tex_coords_buffer.reset(new GLfloat[2 * m_num_vertices]);
-    color_buffer.reset(new GLfloat[3 * m_num_vertices]);
+    color_buffer.reset(new GLfloat[4 * m_num_vertices]);
     index_buffer.reset(new GLuint[6 * total_num_characters]);
 
     for(uint i=0; i < m_strings.size(); i++){
@@ -191,11 +191,11 @@ void Text2D::updateBuffers(){
             tex_coords_buffer[index + 6] = ch->tex_x_max;
             tex_coords_buffer[index + 7] = ch->tex_y_max;
 
-            index_color = (k + acc) * 12;
-            std::memcpy(&color_buffer[index_color], current_string->color, sizeof(GLfloat) * 3);
-            std::memcpy(&color_buffer[index_color + 3], current_string->color, sizeof(GLfloat) * 3);
-            std::memcpy(&color_buffer[index_color + 6], current_string->color, sizeof(GLfloat) * 3);
-            std::memcpy(&color_buffer[index_color + 9], current_string->color, sizeof(GLfloat) * 3);
+            index_color = (k + acc) * 16;
+            std::memcpy(&color_buffer[index_color], current_string->color, sizeof(GLfloat) * 4);
+            std::memcpy(&color_buffer[index_color + 4], current_string->color, sizeof(GLfloat) * 4);
+            std::memcpy(&color_buffer[index_color + 8], current_string->color, sizeof(GLfloat) * 4);
+            std::memcpy(&color_buffer[index_color + 12], current_string->color, sizeof(GLfloat) * 4);
 
             disp = (k + acc) * 4;
             index = (k + acc) * 6;
@@ -223,7 +223,7 @@ void Text2D::updateBuffers(){
     glBufferData(GL_ARRAY_BUFFER, 2 * m_num_vertices * sizeof(GLfloat), tex_coords_buffer.get(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo_col);
-    glBufferData(GL_ARRAY_BUFFER, 3 * m_num_vertices * sizeof(GLfloat), color_buffer.get(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * m_num_vertices * sizeof(GLfloat), color_buffer.get(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_ind);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * total_num_characters * sizeof(GLuint), index_buffer.get(), GL_STATIC_DRAW);
@@ -270,7 +270,7 @@ void Text2D::addString(const wchar_t* string, float relative_x,
 
 
 void Text2D::addString(const wchar_t* text, uint x, uint y, 
-                       float scale, int placement, int alignment, float color[3]){
+                       float scale, int placement, int alignment, float color[4]){
 #ifdef DEBUG
     assert(color);
     assert(text);
@@ -290,7 +290,7 @@ void Text2D::addString(const wchar_t* text, uint x, uint y,
     str.alignment = alignment;
     str.width = 0;
     str.height = getFontHeigth() * scale;
-    std::memcpy(str.color, color, sizeof(float) * 3);
+    std::memcpy(str.color, color, sizeof(float) * 4);
     wstrcpy(str.textbuffer, text, STRING_MAX_LEN);
 
     str.strlen = 0;

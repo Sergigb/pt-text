@@ -62,8 +62,10 @@ class Text2D{
         Text2D(int fb_width, int fb_height, const FontAtlas* font, GLuint shader);
         ~Text2D();
 
-        void addString(const wchar_t* string, uint x, uint y, float scale, int placement, int alignment, float color[3]);
-        void addString(const wchar_t* string, float relative_x, float relative_y, float scale, int alignment, float color[3]);
+        void addString(const wchar_t* string, uint x, uint y, float scale, 
+                       int placement, int alignment, float color[4]);
+        void addString(const wchar_t* string, float relative_x, float 
+                       relative_y, float scale, int alignment, float color[4]);
         void setDisplacement(float x, float y);
         void clearStrings();
 
@@ -85,7 +87,7 @@ struct string{
     uint width;
     uint height;
     wchar_t textbuffer[STRING_MAX_LEN];
-    float color[3];
+    float color[4];
 };
 
 

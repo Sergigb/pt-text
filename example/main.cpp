@@ -135,8 +135,9 @@ int main(int argc, char* argv[]){
     Text2D text(vp_data[2], vp_data[3], &atlas, text_shader);
     my_text_1 = &text; // set this pointer for the callback
 
-    float nice_white[3] = {.75f, .75f, .75f};
-    float red[3] = {1.f, 0.f, 0.f};
+    float nice_white[4] = {.75f, .75f, .75f, 1.f};
+    float red[4] = {1.f, 0.f, 0.f, 1.f};
+    float faded_green[4] = {0.f, 1.f, 0.f, .5f};
 
     text.addString(L"Hello World! (Left-aligned)", 50., 50., 1, 
                    STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT, nice_white);
@@ -152,6 +153,8 @@ int main(int argc, char* argv[]){
                     "the same object/drawing call!\n"
                     "And breaklines!", 0.5, 0.75, 0.5,
                     STRING_ALIGN_CENTER_XY, red);
+    text.addString(L"Faded green test rgba = [0., 1., 0., .5]", 50., 100., 0.5, 
+                   STRING_DRAW_ABSOLUTE_TR, STRING_ALIGN_LEFT, faded_green);
 
     // main loop
     while(!glfwWindowShouldClose(window)){

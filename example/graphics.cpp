@@ -26,22 +26,22 @@
 
 const GLchar frag_shader[] = "#version 410\n"
                              "in vec2 st;\n"
-                             "in vec3 color;\n"
+                             "in vec4 color;\n"
                              "out vec4 frag_colour;\n"
 
                              "uniform sampler2D texture_sampler;\n"
 
                              "void main(){\n"
-                                 "frag_colour = vec4(color, texture(texture_sampler, st).r);\n"
+                                 "frag_colour = vec4(color.rgb, texture(texture_sampler, st).r * color.a);\n"
                              "}\n";
 
 
 const GLchar vert_shader[] = "#version 410\n"
                              "layout(location = 0) in vec2 vertex;\n"
                              "layout(location = 1) in vec2 tex_coord;\n"
-                             "layout(location = 2) in vec3 vert_color;\n"
+                             "layout(location = 2) in vec4 vert_color;\n"
                              "out vec2 st;\n"
-                             "out vec3 color;\n"
+                             "out vec4 color;\n"
 
                              "uniform mat4 projection;\n"
                              "uniform vec2 disp;\n"
